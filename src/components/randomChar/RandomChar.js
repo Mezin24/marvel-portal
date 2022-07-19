@@ -20,7 +20,7 @@ class RandomChar extends Component {
     this.updateChar();
   };
 
-  onChatLoaded = (char) => {
+  onCharLoaded = (char) => {
     this.setState({ char, loading: false });
   };
 
@@ -32,7 +32,7 @@ class RandomChar extends Component {
     const randomId = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
     this.marvelService
       .getCharacter(randomId)
-      .then((res) => this.onChatLoaded(res))
+      .then((res) => this.onCharLoaded(res))
       .catch(() => this.onError());
   };
 
@@ -86,7 +86,7 @@ const View = ({ char }) => {
   const imgFit = /image_not_available/g.test(thumbnail)
     ? { objectFit: 'contain' }
     : null;
-  // http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg
+
   return (
     <div className='randomchar__block'>
       <img

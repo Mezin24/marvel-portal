@@ -30,7 +30,7 @@ class CharList extends Component {
     const error = this.state.error ? <ErrorMessage /> : null;
 
     const content = this.state.chars.length ? (
-      <View chars={this.state.chars} />
+      <View chars={this.state.chars} onSelectChar={this.props.onSelectChar} />
     ) : null;
 
     return (
@@ -43,14 +43,14 @@ class CharList extends Component {
   }
 }
 
-const View = ({ chars }) => {
+const View = ({ chars, onSelectChar }) => {
   const charsList = chars.map(({ name, thumbnail, id }) => {
     const imgFit = /image_not_available/g.test(thumbnail)
       ? { objectFit: 'contain' }
       : null;
 
     return (
-      <li key={id} className='char__item'>
+      <li key={id} className='char__item' onClick={() => onSelectChar(id)}>
         <img style={imgFit} src={thumbnail} alt='abyss' />
         <div className='char__name'>{name}</div>
       </li>
