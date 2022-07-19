@@ -1,6 +1,8 @@
 import { Component } from 'react/cjs/react.production.min';
 
 import MarvelServices from '../../services/MarvelServices';
+import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
@@ -13,57 +15,40 @@ class RandomChar extends Component {
 
   state = {
     char: {},
+    loading: true,
+    error: false,
   };
 
   marvelService = new MarvelServices();
 
   onChatLoaded = (char) => {
-    this.setState({ char });
+    this.setState({ char, loading: false });
+  };
+
+  onError = () => {
+    this.setState({ loading: false, error: true });
   };
 
   updateChar = () => {
     const randomId = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
     this.marvelService
       .getCharacter(randomId)
-      .then((res) => this.onChatLoaded(res));
+      .then((res) => this.onChatLoaded(res))
+      .catch(() => this.onError());
   };
 
   render() {
-    const {
-      char: { name, description, thumbnail, homepage, wiki },
-    } = this.state;
+    const { char, loading, error } = this.state;
 
-    let descr = 'Sorry, no information about this character';
-
-    if (description) {
-      descr = description;
-    }
-
-    if (descr.length > 150) {
-      descr = descr.slice(0, 150) + '...';
-    }
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(error || loading) ? <View char={char} /> : null;
 
     return (
       <div className='randomchar'>
-        <div className='randomchar__block'>
-          <img
-            src={thumbnail}
-            alt='Random character'
-            className='randomchar__img'
-          />
-          <div className='randomchar__info'>
-            <p className='randomchar__name'>{name}</p>
-            <p className='randomchar__descr'>{descr}</p>
-            <div className='randomchar__btns'>
-              <a href={homepage} className='button button__main'>
-                <div className='inner'>homepage</div>
-              </a>
-              <a href={wiki} className='button button__secondary'>
-                <div className='inner'>Wiki</div>
-              </a>
-            </div>
-          </div>
-        </div>
+        {errorMessage}
+        {spinner}
+        {content}
         <div className='randomchar__static'>
           <p className='randomchar__title'>
             Random character for today!
@@ -80,5 +65,37 @@ class RandomChar extends Component {
     );
   }
 }
+
+const View = ({ char }) => {
+  const { name, description, thumbnail, homepage, wiki } = char;
+
+  let descr = 'Sorry, no information about this character';
+
+  if (description) {
+    descr = description;
+  }
+
+  if (descr.length > 150) {
+    descr = descr.slice(0, 150) + '...';
+  }
+
+  return (
+    <div className='randomchar__block'>
+      <img src={thumbnail} alt='Random character' className='randomchar__img' />
+      <div className='randomchar__info'>
+        <p className='randomchar__name'>{name}</p>
+        <p className='randomchar__descr'>{descr}</p>
+        <div className='randomchar__btns'>
+          <a href={homepage} className='button button__main'>
+            <div className='inner'>homepage</div>
+          </a>
+          <a href={wiki} className='button button__secondary'>
+            <div className='inner'>Wiki</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default RandomChar;
