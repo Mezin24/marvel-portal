@@ -36,6 +36,11 @@ class RandomChar extends Component {
       .catch(() => this.onError());
   };
 
+  onChangeChar = () => {
+    this.setState({ loading: true });
+    this.updateChar();
+  };
+
   render() {
     const { char, loading, error } = this.state;
 
@@ -55,7 +60,7 @@ class RandomChar extends Component {
             Do you want to get to know him better?
           </p>
           <p className='randomchar__title'>Or choose another one</p>
-          <button className='button button__main'>
+          <button className='button button__main' onClick={this.onChangeChar}>
             <div className='inner'>try it</div>
           </button>
           <img src={mjolnir} alt='mjolnir' className='randomchar__decoration' />
@@ -78,9 +83,18 @@ const View = ({ char }) => {
     descr = descr.slice(0, 150) + '...';
   }
 
+  const imgFit = /image_not_available/g.test(thumbnail)
+    ? { objectFit: 'contain' }
+    : null;
+  // http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg
   return (
     <div className='randomchar__block'>
-      <img src={thumbnail} alt='Random character' className='randomchar__img' />
+      <img
+        style={imgFit}
+        src={thumbnail}
+        alt='Random character'
+        className='randomchar__img'
+      />
       <div className='randomchar__info'>
         <p className='randomchar__name'>{name}</p>
         <p className='randomchar__descr'>{descr}</p>
