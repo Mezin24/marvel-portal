@@ -44,13 +44,13 @@ class CharList extends Component {
 }
 
 const View = ({ chars }) => {
-  const charsList = chars.map(({ name, thumbnail }) => {
+  const charsList = chars.map(({ name, thumbnail, id }) => {
     const imgFit = /image_not_available/g.test(thumbnail)
       ? { objectFit: 'contain' }
       : null;
 
     return (
-      <li key={name} className='char__item'>
+      <li key={id} className='char__item'>
         <img style={imgFit} src={thumbnail} alt='abyss' />
         <div className='char__name'>{name}</div>
       </li>
