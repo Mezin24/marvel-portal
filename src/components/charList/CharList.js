@@ -10,6 +10,8 @@ class CharList extends Component {
     chars: [],
     loading: true,
     error: false,
+    offset: 210,
+    newItemLoading: false,
   };
 
   marvelServices = new MarvelServices();
@@ -19,10 +21,39 @@ class CharList extends Component {
   };
 
   updateChars = () => {
+    this.onCharLoading();
     this.marvelServices
-      .getAllCharacters()
-      .then((res) => this.setState({ loading: false, chars: res }))
-      .catch(() => this.setState({ loading: false, error: true }));
+      .getAllCharacters(this.state.offset)
+      .then(this.onCharLoaded)
+      .catch(this.onError);
+  };
+
+  onCharLoaded = (newChars) => {
+    let ended = false;
+    if (newChars.length < 9) {
+      ended = true;
+    }
+
+    this.setState(({ chars, offset }) => ({
+      loading: false,
+      chars: [...chars, ...newChars],
+      offset: offset + 9,
+      newItemLoading: false,
+      endedItems: ended,
+    }));
+  };
+
+  onCharLoading = () => {
+    if (this.state.chars.length > 0) {
+      this.setState({ newItemLoading: true });
+      return;
+    }
+
+    this.setState({ loading: true });
+  };
+
+  onError = () => {
+    this.setState({ loading: false, error: true });
   };
 
   render() {
@@ -30,7 +61,13 @@ class CharList extends Component {
     const error = this.state.error ? <ErrorMessage /> : null;
 
     const content = this.state.chars.length ? (
-      <View chars={this.state.chars} onSelectChar={this.props.onSelectChar} />
+      <View
+        chars={this.state.chars}
+        onSelectChar={this.props.onSelectChar}
+        updateChars={this.updateChars}
+        newItemLoading={this.state.newItemLoading}
+        endedItems={this.state.endedItems}
+      />
     ) : null;
 
     return (
@@ -43,10 +80,16 @@ class CharList extends Component {
   }
 }
 
-const View = ({ chars, onSelectChar }) => {
+const View = ({
+  chars,
+  onSelectChar,
+  updateChars,
+  newItemLoading,
+  endedItems,
+}) => {
   const charsList = chars.map(({ name, thumbnail, id }) => {
     const imgFit = /image_not_available/g.test(thumbnail)
-      ? { objectFit: 'contain' }
+      ? { objectFit: 'unset' }
       : null;
 
     return (
@@ -60,7 +103,12 @@ const View = ({ chars, onSelectChar }) => {
   return (
     <>
       <ul className='char__grid'>{charsList}</ul>
-      <button className='button button__main button__long'>
+      <button
+        onClick={updateChars}
+        className='button button__main button__long'
+        disabled={newItemLoading}
+        style={{ display: !endedItems ? 'block' : 'none' }}
+      >
         <div className='inner'>load more</div>
       </button>
     </>

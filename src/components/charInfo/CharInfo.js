@@ -96,7 +96,11 @@ const View = ({ char }) => {
       {comics.length > 0 ? (
         <ul className='char__comics-list'>
           {[...comics].splice(0, 10).map((item) => {
-            return <li className='char__comics-item'>{item.name}</li>;
+            return (
+              <li key={item.name} className='char__comics-item'>
+                {item.name}
+              </li>
+            );
           })}
         </ul>
       ) : (
