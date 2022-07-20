@@ -1,4 +1,5 @@
 import { Component } from 'react/cjs/react.production.min';
+import PropTypes from 'prop-types'; //
 
 import './charList.scss';
 import MarvelServices from '../../services/MarvelServices';
@@ -129,6 +130,10 @@ const View = ({
       </button>
     </>
   );
+};
+
+CharList.propTypes = {
+  onSelectChar: PropTypes.func,
 };
 
 export default CharList;
