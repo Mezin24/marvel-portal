@@ -18,6 +18,20 @@ class CharList extends Component {
 
   componentDidMount = () => {
     this.updateChars();
+    window.addEventListener('scroll', this.onScrollUpdate);
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener('scroll', this.onScrollUpdate);
+  };
+
+  onScrollUpdate = () => {
+    if (
+      window.scrollY + document.documentElement.clientHeight >=
+      document.documentElement.scrollHeight
+    ) {
+      this.updateChars();
+    }
   };
 
   updateChars = () => {
@@ -109,7 +123,9 @@ const View = ({
         disabled={newItemLoading}
         style={{ display: !endedItems ? 'block' : 'none' }}
       >
-        <div className='inner'>load more</div>
+        <div className='inner'>
+          {newItemLoading ? 'Loading....' : 'load more'}
+        </div>
       </button>
     </>
   );
