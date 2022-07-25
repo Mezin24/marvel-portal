@@ -19,21 +19,21 @@ class CharList extends Component {
 
   componentDidMount = () => {
     this.updateChars();
-    window.addEventListener('scroll', this.onScrollUpdate);
+    // window.addEventListener('scroll', this.onScrollUpdate);
   };
 
-  componentWillUnmount = () => {
-    window.removeEventListener('scroll', this.onScrollUpdate);
-  };
+  // componentWillUnmount = () => {
+  //   window.removeEventListener('scroll', this.onScrollUpdate);
+  // };
 
-  onScrollUpdate = () => {
-    if (
-      window.scrollY + document.documentElement.clientHeight >=
-      document.documentElement.scrollHeight
-    ) {
-      this.updateChars();
-    }
-  };
+  // onScrollUpdate = () => {
+  //   if (
+  //     window.scrollY + document.documentElement.clientHeight >=
+  //     document.documentElement.scrollHeight
+  //   ) {
+  //     // this.updateChars();
+  //   }
+  // };
 
   updateChars = () => {
     this.onCharLoading();
@@ -95,42 +95,66 @@ class CharList extends Component {
   }
 }
 
-const View = ({
-  chars,
-  onSelectChar,
-  updateChars,
-  newItemLoading,
-  endedItems,
-}) => {
-  const charsList = chars.map(({ name, thumbnail, id }) => {
-    const imgFit = /image_not_available/g.test(thumbnail)
-      ? { objectFit: 'unset' }
-      : null;
+class View extends Component {
+  itemRefs = [];
+
+  handleItemClick = (e, id) => {
+    this.props.onSelectChar(id);
+    this.itemRefs.forEach((item) =>
+      item.classList.remove('char__item_selected')
+    );
+    e.target.closest('.char__item').classList.add('char__item_selected');
+  };
+
+  setItemRef = (elem) => {
+    elem.setAttribute('tabindex', 0);
+    this.itemRefs.push(elem);
+  };
+
+  keyDownSelectHandler = (e, id) => {
+    if (e.key === 'Enter') {
+      this.handleItemClick(e, id);
+    }
+  };
+
+  render() {
+    const { chars, updateChars, newItemLoading, endedItems } = this.props;
+    const charsList = chars.map(({ name, thumbnail, id }) => {
+      const imgFit = /image_not_available/g.test(thumbnail)
+        ? { objectFit: 'unset' }
+        : null;
+
+      return (
+        <li
+          ref={this.setItemRef}
+          key={id}
+          className='char__item'
+          onClick={(e) => this.handleItemClick(e, id)}
+          onKeyDown={(e) => this.keyDownSelectHandler(e, id)}
+        >
+          <img style={imgFit} src={thumbnail} alt='abyss' />
+          <div className='char__name'>{name}</div>
+        </li>
+      );
+    });
 
     return (
-      <li key={id} className='char__item' onClick={() => onSelectChar(id)}>
-        <img style={imgFit} src={thumbnail} alt='abyss' />
-        <div className='char__name'>{name}</div>
-      </li>
+      <>
+        <ul className='char__grid'>{charsList}</ul>
+        <button
+          onClick={updateChars}
+          className='button button__main button__long'
+          disabled={newItemLoading}
+          style={{ display: !endedItems ? 'block' : 'none' }}
+        >
+          <div className='inner'>
+            {newItemLoading ? 'Loading....' : 'load more'}
+          </div>
+        </button>
+      </>
     );
-  });
-
-  return (
-    <>
-      <ul className='char__grid'>{charsList}</ul>
-      <button
-        onClick={updateChars}
-        className='button button__main button__long'
-        disabled={newItemLoading}
-        style={{ display: !endedItems ? 'block' : 'none' }}
-      >
-        <div className='inner'>
-          {newItemLoading ? 'Loading....' : 'load more'}
-        </div>
-      </button>
-    </>
-  );
-};
+  }
+}
 
 CharList.propTypes = {
   onSelectChar: PropTypes.func,
